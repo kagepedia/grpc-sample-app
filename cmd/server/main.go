@@ -57,6 +57,25 @@ func (server *GreetingServiceServer) HelloClientStream(stream hellopb.GreetingSe
 	}
 }
 
+func (server *GreetingServiceServer) HelloBidirectionalStream(stream hellopb.GreetingService_HelloBidirectionalStreamServer) error {
+	for {
+		req, err := stream.Recv()
+		if errors.Is(err, io.EOF) {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+
+		message := fmt.Sprintf("Hello %s, you are %d years old", req.GetName(), req.GetAge())
+		if err := stream.Send(&hellopb.HelloResponse{
+			Message: message,
+		}); err != nil {
+			return err
+		}
+	}
+}
+
 func NewGreetingServiceServer() *GreetingServiceServer {
 	return &GreetingServiceServer{}
 }

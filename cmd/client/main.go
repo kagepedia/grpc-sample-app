@@ -46,7 +46,8 @@ func main() {
 		fmt.Println("1: send Request")
 		fmt.Println("2: HelloServerStream")
 		fmt.Println("3: HelloClientStream")
-		fmt.Println("4: exit")
+		fmt.Println("4: HelloBidirectionalStream")
+		fmt.Println("5: exit")
 		fmt.Print("please enter >")
 
 		scanner.Scan()
@@ -63,6 +64,9 @@ func main() {
 			HelloClientStream()
 
 		case "4":
+			HelloBidirectionalStream()
+
+		case "5":
 			fmt.Println("bye.")
 			goto M
 		}
@@ -169,5 +173,59 @@ func HelloClientStream() {
 		fmt.Println(err)
 	} else {
 		fmt.Println(res.GetMessage())
+	}
+}
+
+func HelloBidirectionalStream() {
+	stream, err := client.HelloBidirectionalStream(context.Background())
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	sendNum := 5
+	fmt.Printf("Please enter %d names and ages.\n", sendNum)
+
+	var sendEnd, recvEnd bool
+	sendCount := 0
+	for !(sendEnd && recvEnd) {
+		// 送信処理
+		if !sendEnd {
+			fmt.Print("name:")
+			scanner.Scan()
+			name := scanner.Text()
+
+			fmt.Print("age:")
+			scanner.Scan()
+			age, _ := strconv.Atoi(scanner.Text())
+
+			sendCount++
+			if err := stream.Send(&hellopb.HelloRequest{
+				Name: name,
+				Age:  int32(age),
+			}); err != nil {
+				fmt.Println(err)
+				sendEnd = true
+			}
+
+			if sendCount == sendNum {
+				sendEnd = true
+				if err := stream.CloseSend(); err != nil {
+					fmt.Println(err)
+				}
+			}
+		}
+
+		// 受信処理
+		if !recvEnd {
+			if res, err := stream.Recv(); err != nil {
+				if !errors.Is(err, io.EOF) {
+					fmt.Println(err)
+				}
+				recvEnd = true
+			} else {
+				fmt.Println(res.GetMessage())
+			}
+		}
 	}
 }
