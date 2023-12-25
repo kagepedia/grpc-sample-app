@@ -5,7 +5,10 @@ option go_package = "./pb/greet";
 package myapp;
 
 service GreetingService {
+    // Unary RPC
     rpc Hello(HelloRequest) returns (HelloResponse);
+    // Server streaming RPC
+    rpc HelloServerStream(HelloRequest) returns (stream HelloResponse);
 }
 
 message HelloRequest {
