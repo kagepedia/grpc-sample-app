@@ -8,3 +8,10 @@ GoでgRPC通信のサンプルアプリケーションを作成
 - Server Streaming RPC
 - Client Streaming RPC
 - Bidirectional Streaming RPC
+
+### コマンド
+```shell
+protoc --go_out=./ --go_opt=paths=source_relative \
+	--go-grpc_out=./ --go-grpc_opt=paths=source_relative \
+	hoge.proto
+```
