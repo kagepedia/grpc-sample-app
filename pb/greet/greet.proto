@@ -9,6 +9,8 @@ service GreetingService {
     rpc Hello(HelloRequest) returns (HelloResponse);
     // Server streaming RPC
     rpc HelloServerStream(HelloRequest) returns (stream HelloResponse);
+    // Client streaming RPC
+    rpc HelloClientStream(stream HelloRequest) returns (HelloResponse);
 }
 
 message HelloRequest {
