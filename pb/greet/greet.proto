@@ -11,6 +11,8 @@ service GreetingService {
     rpc HelloServerStream(HelloRequest) returns (stream HelloResponse);
     // Client streaming RPC
     rpc HelloClientStream(stream HelloRequest) returns (HelloResponse);
+    // Bidirectional streaming RPC
+    rpc HelloBidirectionalStream(stream HelloRequest) returns (stream HelloResponse);
 }
 
 message HelloRequest {
