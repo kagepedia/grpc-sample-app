@@ -10,6 +10,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"time"
 )
 
 type GreetingServiceServer struct {
@@ -20,6 +21,20 @@ func (server *GreetingServiceServer) Hello(ctx context.Context, req *hellopb.Hel
 	return &hellopb.HelloResponse{
 		Message: fmt.Sprintf("Hello %s, you are %d years old", req.GetName(), req.GetAge()),
 	}, nil
+}
+
+func (server *GreetingServiceServer) HelloServerStream(req *hellopb.HelloRequest, stream hellopb.GreetingService_HelloServerStreamServer) error {
+	retryCount := 5
+	for i := 0; i < retryCount; i++ {
+		if err := stream.Send(&hellopb.HelloResponse{
+			Message: fmt.Sprintf("[%d] Hello %s, you are %d years old", i, req.GetName(), req.GetAge()),
+		}); err != nil {
+			log.Printf("failed to send message: %v", err)
+			return err
+		}
+		time.Sleep(1 * time.Second)
+	}
+	return nil
 }
 
 func NewGreetingServiceServer() *GreetingServiceServer {
